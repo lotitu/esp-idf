@@ -1,4 +1,4 @@
-name: Build ESP32-C3 HCI Firmware
+name: Build ESP32-S3 HCI Firmware
 
 on:
   workflow_dispatch:
@@ -29,13 +29,13 @@ jobs:
         uses: espressif/esp-idf-ci-action@v1
         with:
           esp_idf_version: v5.4
-          target: esp32c3
+          target: esp32s3
           path: 'examples/bluetooth/hci/controller_hci_uart_esp32'
 
       - name: Upload Binaries
         uses: actions/upload-artifact@v4
         with:
-          name: esp32c3-hci-binaries
+          name: esp32s3-hci-binaries
           path: |
             examples/bluetooth/hci/controller_hci_uart_esp32/build/bootloader/bootloader.bin
             examples/bluetooth/hci/controller_hci_uart_esp32/build/partition_table/partition-table.bin
