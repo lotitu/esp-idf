@@ -1,4 +1,4 @@
-name: Build ESP32-S3 Zero HCI Firmware (USB-Fix)
+name: Build ESP32-S3 Zero USB-Dongle Firmware
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
           sparse-checkout: |
             examples/bluetooth/hci/controller_hci_uart_esp32
 
-      - name: Inject S3 Native USB Config
+      - name: Inject S3 Native USB-HCI Config
         run: |
           cd examples/bluetooth/hci/controller_hci_uart_esp32
           
@@ -22,8 +22,10 @@ jobs:
           echo "CONFIG_BT_ENABLED=y" >> sdkconfig.defaults
           echo "CONFIG_BT_CONTROLLER_ONLY=y" >> sdkconfig.defaults
           
-          # Schaltet physische Pins ab und leitet HCI auf die USB-Buchse um
+          # Deaktiviert die physischen Pins (GPIO 43/44)
           echo "CONFIG_BT_LE_HCI_INTERFACE_USE_UART=n" >> sdkconfig.defaults
+          
+          # Zwingt den BLE-Treiber nativ auf die USB-Buchse (USB-CDC)
           echo "CONFIG_BT_LE_HCI_INTERFACE_USE_USB=y" >> sdkconfig.defaults
 
           # Code-Fix für das Demoprojekt (Kompilierfehler umgehen)
