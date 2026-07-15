@@ -14,13 +14,16 @@ jobs:
           sparse-checkout: |
             examples/bluetooth/hci/controller_hci_uart_esp32
 
-      - name: Inject USB UART Config
+      - name: Inject USB UART Config & Fix Code Macro
         run: |
           cd examples/bluetooth/hci/controller_hci_uart_esp32
+          
+          # Standard-USB-Konfigurationen setzen
           echo "CONFIG_BT_ENABLED=y" >> sdkconfig.defaults
           echo "CONFIG_BT_CONTROLLER_ONLY=y" >> sdkconfig.defaults
-          echo "CONFIG_BT_LE_HCI_INTERFACE_USE_UART=y" >> sdkconfig.defaults
-          echo "CONFIG_BT_LE_UART_HCI_PORTS_NUM=0" >> sdkconfig.defaults
+          
+          # Code-Fix: Das fehlende Makro oben in die Hauptdatei injizieren
+          sed -i '1s/^/#define CONFIG_BTDM_CTRL_HCI_UART_NO 0\n/' main/controller_hci_uart_demo.c
 
       - name: Build Bluetooth HCI
         uses: espressif/esp-idf-ci-action@v1
