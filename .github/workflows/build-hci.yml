@@ -1,4 +1,4 @@
-name: Build ESP32 C3 HCI Firmware
+name: Build ESP32 HCI Firmware
 
 on:
   workflow_dispatch:
