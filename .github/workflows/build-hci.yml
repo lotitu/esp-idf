@@ -1,0 +1,39 @@
+name: Build ESP32 HCI Firmware
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            examples/bluetooth/hci/controller_hci_uart_esp32
+
+      - name: Inject USB UART Config
+        run: |
+          cd examples/bluetooth/hci/controller_hci_uart_esp32
+          echo "CONFIG_BT_ENABLED=y" >> sdkconfig.defaults
+          echo "CONFIG_BT_CONTROLLER_ONLY=y" >> sdkconfig.defaults
+          echo "CONFIG_BTDM_CTRL_HCI_UART_NO=0" >> sdkconfig.defaults
+          echo "CONFIG_BTDM_CTRL_HCI_UART_BAUDRATE=921600" >> sdkconfig.defaults
+
+      - name: Build Bluetooth HCI
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.4
+          target: esp32
+          path: 'examples/bluetooth/hci/controller_hci_uart_esp32'
+
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32-hci-binaries
+          path: |
+            examples/bluetooth/hci/controller_hci_uart_esp32/build/bootloader/bootloader.bin
+            examples/bluetooth/hci/controller_hci_uart_esp32/build/partition_table/partition-table.bin
+            examples/bluetooth/hci/controller_hci_uart_esp32/build/controller_hci_uart.bin
