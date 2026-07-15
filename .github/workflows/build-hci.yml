@@ -14,7 +14,7 @@ jobs:
           sparse-checkout: |
             examples/bluetooth/hci/controller_hci_uart_esp32
 
-      - name: Inject S3 Native USB Config
+      - name: Inject S3 Native USB Config & NVS Fix
         run: |
           cd examples/bluetooth/hci/controller_hci_uart_esp32
           
@@ -25,6 +25,10 @@ jobs:
           # Schaltet physische Pins ab und leitet HCI auf die USB-Buchse um
           echo "CONFIG_BT_LE_HCI_INTERFACE_USE_UART=n" >> sdkconfig.defaults
           echo "CONFIG_BT_LE_HCI_INTERFACE_USE_USB=y" >> sdkconfig.defaults
+
+          # FIX: Verhindert den PHY/NVS Boot-Absturz auf dem S3-Zero
+          echo "CONFIG_BT_LE_HCI_INTERFACE_USE_UART=n" >> sdkconfig.defaults
+          echo "CONFIG_BT_CTRL_LOG_INITIALIZE=n" >> sdkconfig.defaults
 
           # Code-Fix für das Demoprojekt (Kompilierfehler umgehen)
           sed -i '1s/^/#define CONFIG_BTDM_CTRL_HCI_UART_NO 0\n#define CONFIG_BTDM_CTRL_HCI_UART_BAUDRATE 921600\n/' main/controller_hci_uart_demo.c
