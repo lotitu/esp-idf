@@ -1,4 +1,4 @@
-name: Build ESP32-S3 HCI Firmware
+name: Build ESP32-S3 Zero HCI Firmware
 
 on:
   workflow_dispatch:
@@ -14,15 +14,19 @@ jobs:
           sparse-checkout: |
             examples/bluetooth/hci/controller_hci_uart_esp32
 
-      - name: Inject USB UART Config & Fix Code Macros
+      - name: Inject S3 Native USB Config
         run: |
           cd examples/bluetooth/hci/controller_hci_uart_esp32
           
-          # Standard-USB-Konfigurationen setzen
+          # Aktiviert reines Bluetooth Low Energy (BLE) für den S3
           echo "CONFIG_BT_ENABLED=y" >> sdkconfig.defaults
           echo "CONFIG_BT_CONTROLLER_ONLY=y" >> sdkconfig.defaults
           
-          # Code-Fix: Beide fehlenden Makros oben in die Hauptdatei injizieren
+          # Schaltet physische Pins ab und leitet HCI auf die USB-Buchse um
+          echo "CONFIG_BT_LE_HCI_INTERFACE_USE_UART=n" >> sdkconfig.defaults
+          echo "CONFIG_BT_LE_HCI_INTERFACE_USE_USB=y" >> sdkconfig.defaults
+
+          # Code-Fix für das Demoprojekt (Kompilierfehler umgehen)
           sed -i '1s/^/#define CONFIG_BTDM_CTRL_HCI_UART_NO 0\n#define CONFIG_BTDM_CTRL_HCI_UART_BAUDRATE 921600\n/' main/controller_hci_uart_demo.c
 
       - name: Build Bluetooth HCI
